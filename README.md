@@ -5,13 +5,13 @@ The SmartNIC VM receives packets, classifies them, drops unwanted packets, and f
 
 This project demonstrates core SmartNIC concepts used in:
 
- NVIDIA BlueField
+NVIDIA BlueField
 
- Intel IPU
+Intel IPU
 
- AWS Nitro
+AWS Nitro
 
- Pensando SmartNICs
+Pensando SmartNICs
 
 Features
 
@@ -19,13 +19,13 @@ SmartNIC-style packet pipeline (RX → Classify → Drop/Forward → TX)
 
 Content-based filtering (simple match–action)
 
-Forwarding of accepted packets to a backend
+Forwarding accepted packets to a backend server
 
-Real UDP packet flow across two VMs
+Real UDP packet flow between two VMs
 
 Separation of RX and TX sockets
 
-Packet statistics (total, accepted, dropped)
+Packet stats (accepted, dropped, total)
 
 Architecture
 Host VM
@@ -38,17 +38,16 @@ SmartNIC VM
 | Classification Engine  |
 | Drop / Accept          |
 | TX Socket → 127.0.0.1  |
-|            UDP:9999    |
+| UDP 9999               |
 +------------------------+
     |
-    | UDP 9999
     v
 Backend Server
 
 Project Structure
 listener/
-├── udp_listener.py       # SmartNIC packet classifier + forwarder
-├── backend_server.py     # Backend application to receive accepted packets
+├── udp_listener.py       # SmartNIC classifier + forwarder
+├── backend_server.py     # Backend application
 └── README.md             # Documentation
 
 Setup Instructions
@@ -60,24 +59,19 @@ VirtualBox with Bridged Networking
 
 Python 3 installed
 
-Netcat installed on the Host VM
+Netcat installed on Host VM
 
 Install netcat:
 
 sudo apt install netcat
 
-2. Run Backend Server (on SmartNIC VM)
+2. Run Backend (SmartNIC VM)
 python3 backend_server.py
 
-
-Expected:
-
-Backend server listening on UDP port 9999...
-
-3. Run SmartNIC Listener (on SmartNIC VM)
+3. Run SmartNIC Listener (SmartNIC VM)
 python3 udp_listener.py
 
-4. Send Packets from Host VM
+4. Send Packets (Host VM)
 
 Allowed:
 
@@ -95,24 +89,24 @@ Expected Output (SmartNIC)
 Expected Output (Backend)
 [BACKEND] msg='Normal request'
 
-How This Relates to Real SmartNICs
+How It Relates to Real SmartNICs
 
-RX/TX sockets simulate NIC queues
+RX/TX sockets simulate NIC hardware queues
 
-Keyword matching simulates TCAM rule filtering
+Content matching simulates TCAM rule lookup
 
-Forwarding simulates offload engines
+Forwarding simulates on-NIC offload engines
 
-Separate VMs simulate host vs SmartNIC architecture
+Two VMs simulate host vs. SmartNIC separation
 
 Future Improvements
 
-Add connection tracking
+Add ACL/TCAM rule table
 
-Add TCAM-style wildcard rules
+Add DPDK version
+
+Add eBPF/XDP fast path
+
+Add rule compiler
 
 Add latency measurement
-
-Implement DPDK version
-
-Implement eBPF/XDP version
